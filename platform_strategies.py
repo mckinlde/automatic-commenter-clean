@@ -354,3 +354,131 @@ class TikTokStrategy(PlatformStrategy):
             return comment_text in page_source
         except Exception:
             return False
+
+
+class YouTubeStrategy(PlatformStrategy):
+"""
+YouTube automation strategy.
+
+Secondary platform — selectors are best-effort based on known DOM structures.
+YouTube uses multiple login methods (email, phone, QR code); this strategy
+targets the email/password flow.
+
+TODO: YouTube has aggressive bot detection (device fingerprinting, behavioral
+analysis). Headed Chrome with human-like timing is essential.
+"""
+
+def get_login_selectors(self) -> LoginSelectors:
+# YouTube email/password login flow selectors.
+# TODO: YouTube's login page is highly dynamic and may require navigating
+# through multiple steps (select "Log in with email/username" first).
+return LoginSelectors(
+username_field='input[name="username"], input[placeholder*="Email"], input[placeholder*="Username"]',
+password_field='input[type="password"]',
+submit_button='button[data-e2e="login-button"], button[type="submit"]',
+)
+
+def get_comment_field_selector(self) -> str:
+# YouTube uses a contenteditable div for comment input.
+# TODO: The data-e2e attributes are test IDs that YouTube may remove or
+# rename without notice. The contenteditable fallback is more stable.
+return 'div[data-e2e="comment-input"], div[contenteditable="true"]'
+
+def get_comment_field_fallback_selectors(self) -> list[str]:
+"""Additional selectors for the YouTube comment input."""
+return [
+'div[class*="comment-input"] div[contenteditable="true"]',
+'div[data-e2e="comment-input"] div[contenteditable="true"]',
+]
+
+def get_submit_selector(self) -> str:
+# The post button within the comment section.
+# TODO: YouTube may disable this button until text is entered;
+# the automation must type first, then wait for the button to become active.
+return 'div[data-e2e="comment-post"], button[data-e2e="comment-post"]'
+
+def verify_comment_posted(self, driver, comment_text: str) -> bool:
+"""Verify the comment appears on the YouTube video page after submission.
+
+Checks the page source for the comment text. YouTube loads comments
+dynamically, so there may be a brief delay before the comment appears.
+
+TODO: YouTube comment verification may be unreliable due to dynamic
+loading. Needs real browser testing to validate.
+
+Args:
+driver: The Selenium WebDriver instance.
+comment_text: The exact comment text that was submitted.
+
+Returns:
+True if the comment text is found on the page.
+"""
+try:
+page_source = driver.page_source
+return comment_text in page_source
+except Exception:
+return False
+
+
+class LinkedInStrategy(PlatformStrategy):
+"""
+LinkedIn automation strategy.
+
+Secondary platform — selectors are best-effort based on known DOM structures.
+LinkedIn uses multiple login methods (email, phone, QR code); this strategy
+targets the email/password flow.
+
+TODO: LinkedIn has aggressive bot detection (device fingerprinting, behavioral
+analysis). Headed Chrome with human-like timing is essential.
+"""
+
+def get_login_selectors(self) -> LoginSelectors:
+# LinkedIn email/password login flow selectors.
+# TODO: LinkedIn's login page is highly dynamic and may require navigating
+# through multiple steps (select "Log in with email/username" first).
+return LoginSelectors(
+username_field='input[name="username"], input[placeholder*="Email"], input[placeholder*="Username"]',
+password_field='input[type="password"]',
+submit_button='button[data-e2e="login-button"], button[type="submit"]',
+)
+
+def get_comment_field_selector(self) -> str:
+# LinkedIn uses a contenteditable div for comment input.
+# TODO: The data-e2e attributes are test IDs that LinkedIn may remove or
+# rename without notice. The contenteditable fallback is more stable.
+return 'div[data-e2e="comment-input"], div[contenteditable="true"]'
+
+def get_comment_field_fallback_selectors(self) -> list[str]:
+"""Additional selectors for the LinkedIn comment input."""
+return [
+'div[class*="comment-input"] div[contenteditable="true"]',
+'div[data-e2e="comment-input"] div[contenteditable="true"]',
+]
+
+def get_submit_selector(self) -> str:
+# The post button within the comment section.
+# TODO: LinkedIn may disable this button until text is entered;
+# the automation must type first, then wait for the button to become active.
+return 'div[data-e2e="comment-post"], button[data-e2e="comment-post"]'
+
+def verify_comment_posted(self, driver, comment_text: str) -> bool:
+"""Verify the comment appears on the LinkedIn video page after submission.
+
+Checks the page source for the comment text. LinkedIn loads comments
+dynamically, so there may be a brief delay before the comment appears.
+
+TODO: LinkedIn comment verification may be unreliable due to dynamic
+loading. Needs real browser testing to validate.
+
+Args:
+driver: The Selenium WebDriver instance.
+comment_text: The exact comment text that was submitted.
+
+Returns:
+True if the comment text is found on the page.
+"""
+try:
+page_source = driver.page_source
+return comment_text in page_source
+except Exception:
+return False
